@@ -1,17 +1,17 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
+import { ethers } from "hardhat";
 
-const JAN_1ST_2030 = 1893456000;
-const ONE_GWEI: bigint = 1_000_000_000n;
 
-const LockModule = buildModule("LockModule", (m) => {
-  const unlockTime = m.getParameter("unlockTime", JAN_1ST_2030);
-  const lockedAmount = m.getParameter("lockedAmount", ONE_GWEI);
+const DeploymentModule = buildModule("DeploymentModule", (m) => {
 
-  const lock = m.contract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
+  const shares = m.contract("Shares", []);
+  // const shares = await ethers.deployContract
+  
+  const implementation = m.contract("Core", [shares]);
 
-  return { lock };
+  // add proxy deploy
+
+  return { implementation };
 });
 
-export default LockModule;
+export default DeploymentModule;

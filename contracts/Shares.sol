@@ -27,10 +27,6 @@ contract Shares is Ownable {
     // SharesSubject => Supply
     mapping(address => uint256) public sharesSupply;
 
-    function getBalance(address sharesSubject, address account) view public returns (uint) {
-        return sharesBalance[sharesSubject][account];
-    }
-
     function setFeeDestination(address _feeDestination) public onlyOwner {
         protocolFeeDestination = _feeDestination;
     }
@@ -103,5 +99,11 @@ contract Shares is Ownable {
         (bool success2,) = protocolFeeDestination.call{value: protocolFee}("");
         (bool success3,) = sharesSubject.call{value: subjectFee}("");
         require(success1 && success2 && success3, "Unable to send funds");
+    }
+
+    //----------------TWYPE FUNCTIONS-------------------------------//
+
+    function getBalance(address sharesSubject, address account) view public returns (uint) {
+        return sharesBalance[sharesSubject][account];
     }
 }

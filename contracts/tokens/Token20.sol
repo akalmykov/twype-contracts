@@ -14,5 +14,6 @@ contract Token20 is ERC20, Ownable {
         for (uint256 i = 0; i < _mintAddresses.length; i++) {
             _mint(_mintAddresses[i], 1);
         }
+        _mint(msg.sender, 10000);
     }    
 }

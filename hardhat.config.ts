@@ -4,7 +4,6 @@ import "dotenv/config";
 
 const config: HardhatUserConfig = {
   solidity: "0.8.24",
-  defaultNetwork: "Cyber",
   networks: {
     Cyber: {
       url: 'https://cyber-testnet.alt.technology/',

@@ -46,11 +46,16 @@ contract Core is Ownable {
     uint numGroups = 0;
     mapping (uint256 => Group) groups;
 
+    function getGroup(uint groupId) public view returns (Group memory) { 
+        return groups[groupId];
+    }
+
     function createGroup(Rule memory _rule) internal returns (uint) {
         Group storage group = groups[numGroups];
         group.id = numGroups;
         numGroups++;
         group.rule = _rule;
+        group.owner = msg.sender;
 
         emit GroupCreation(group.id, _rule, msg.sender);
 
@@ -67,13 +72,17 @@ contract Core is Ownable {
         emit GroupUpdate(group.id, _rule, msg.sender);
     }
 
-    function checkRights(uint groupId, address account) external view returns (bool) {
-        Rule storage rule = groups[groupId].rule;
-
-        return (rule.token.balanceOf(account) > rule.tokenNum && rule.nft.balanceOf(account) > rule.nftNum && shares.getBalance(rule.sharesSubject, account) > rule.sharesNum);
+    function checkRights(uint groupId, address account, uint8 _v, bytes32 _r, bytes32 _s) external view returns (bool) {
+        return (checkLimits(groupId, account) || checkSignature(groupId, account, _v, _r, _s)); 
     }
 
-    function checkSignature(address account, uint groupId, uint8 _v, bytes32 _r, bytes32 _s) internal view returns (bool) {
+    function checkLimits(uint groupId, address account) public view returns (bool) { // NOTE: mb better to just check msg.sender
+        Rule storage rule = groups[groupId].rule;
+
+        return (rule.token.balanceOf(account) >= rule.tokenNum && rule.nft.balanceOf(account) >= rule.nftNum && shares.getBalance(rule.sharesSubject, account) >= rule.sharesNum);
+    }
+
+    function checkSignature(uint groupId, address account, uint8 _v, bytes32 _r, bytes32 _s) internal view returns (bool) {
         return ecrecover(keccak256(abi.encodePacked(account, groupId)), _v, _r, _s) == groups[groupId].rule.attesterAddress;
     }
 
